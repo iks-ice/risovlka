@@ -21,7 +21,7 @@ export default {
         };
     },
     computed: {
-        ...mapState(["tools", "toolSelected", "color"]),
+        ...mapState(["tools", "toolSelected", "color", "alpha"]),
         ctx () {
             return this.$refs.canvas.getContext("2d");
         },
@@ -39,7 +39,7 @@ export default {
             this.isDrawing = !this.isDrawing;
             if (this.isDrawing && this.toolSelected) {
                 const Tool = toolFabric(this.toolSelected);
-                this.currentTool = Tool && new Tool(startX, startY, this.color);
+                this.currentTool = Tool && new Tool(startX, startY, this.color, this.alpha);
             } else {
                this.addToDrawn();
             }
@@ -63,7 +63,6 @@ export default {
         },
         draw (x, y) {
             if (this.isDrawing && this.currentTool) {
-                this.ctx.strokeStyle = this.color;
                 if (this.toolSelected !== 'Curve') {
                     this.clearAll();
                     this.rerenderDrawings();

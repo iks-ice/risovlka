@@ -9,6 +9,7 @@ const store = new Vuex.Store({
         tools,
         toolSelected: '',
         color: "#000",
+        alpha: 1,
     },
     getters: {
         color(state) {
@@ -21,6 +22,9 @@ const store = new Vuex.Store({
         },
         setColor(state, color) {
             state.color = color;
+        },
+        setTransparency(state, alpha) {
+            state.alpha = alpha;
         }
     }
   });
