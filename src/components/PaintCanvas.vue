@@ -27,22 +27,22 @@ export default {
         },
     },
     watch: {
-        // coord: function () {
-        //     if (this.toolSelected==="") {
-        //         return;
-        //     }
-        //     this.draw();
-        // }
     },
     methods: {
         click({offsetX:startX, offsetY:startY}) {
-            this.isDrawing = !this.isDrawing;
+            this.toggleDrawing();
             if (this.isDrawing && this.toolSelected) {
-                const Tool = toolFabric(this.toolSelected);
-                this.currentTool = Tool && new Tool(startX, startY, this.color, this.alpha);
+                this.startDrawing(startX, startY);
             } else {
-               this.addToDrawn();
+                this.addToDrawn();
             }
+        },
+        toggleDrawing() {
+            this.isDrawing = !this.isDrawing;
+        },
+        startDrawing(startX, startY) {
+            const Tool = toolFabric(this.toolSelected);
+            this.currentTool = Tool && new Tool(startX, startY, this.color, this.alpha);
         },
         move({offsetX, offsetY}) {
             if (!(this.isDrawing && this.currentTool)) {
@@ -56,7 +56,7 @@ export default {
         rerenderDrawings() {
             this.shapes.forEach(shape => shape && shape.restore(this.ctx));
         },
-        cancelDrawn({keyCode, ctrlKey}) {
+        undo({keyCode, ctrlKey}) {
             if (keyCode === 90 && ctrlKey) {
                 this.shapes.pop();
             }
@@ -76,7 +76,7 @@ export default {
     },
     mounted() {
         document.addEventListener('keydown', (e) => {
-            this.cancelDrawn(e);
+            this.undo(e);
             this.clearAll();
             this.rerenderDrawings();
         });
