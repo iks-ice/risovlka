@@ -53,6 +53,7 @@ export default {
         ...mapMutations(["setColor"]),
         click({offsetX:x, offsetY:y}) { //{offsetX:startX, offsetY:startY}
            const color = this.pickColor(x, y);
+           console.log(color);
            this.setColor(color);
         },
         move() { //{offsetX, offsetY}

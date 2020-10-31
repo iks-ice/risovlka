@@ -16,13 +16,11 @@ class Shape {
         ctx.strokeStyle = this.color;
     }
     _drawLine = (ctx, from, to) => {
-        this._setColor(ctx);
         ctx.beginPath();
         ctx.moveTo(from.x, from.y);
         ctx.lineTo(to.x, to.y);
         ctx.closePath();
         ctx.stroke();
-        //ctx.restore();
     }
 }
 
@@ -31,6 +29,7 @@ class Line extends Shape{
         super(startX, startY, color);
     }
     draw(ctx, x, y) {
+        this._setColor(ctx);
         this._setEndPoint(x, y);
         this._drawLine(ctx, {x: this.startX, y: this.startY}, {x, y});
     }
@@ -44,14 +43,11 @@ class Rectangle{
         this.line = new Line(startX, startY, color);
     }
     draw(ctx, x, y) {
+        this.line._setColor(ctx);
         this.line._setEndPoint(x, y);
-
         this.line._drawLine(ctx, {x: this.line.startX, y: this.line.startY}, {x, y: this.line.startY});
-
         this.line._drawLine(ctx, {x: this.line.startX, y: this.line.startY}, {x: this.line.startX, y});
-
         this.line._drawLine(ctx, {x: this.line.startX, y}, {x, y});
-
         this.line._drawLine(ctx, {x, y: this.line.startY}, {x, y});
     }
     restore(ctx) {
@@ -62,22 +58,17 @@ class Curve extends Shape {
     constructor(startX, startY,color) {
         super(startX, startY, color);
         this.coord = [{x: startX, y: startY}];
+        this._setEndPoint(startX, startY);
     }
     draw(ctx, x, y) {
         this._setColor(ctx);
         this.coord.push({x, y});
-        ctx.beginPath();
-        !(this.endX && this.endY) ?
-            ctx.moveTo(this.startX, this.startY) :
-            ctx.moveTo(this.endX, this.endY)
-        ctx.lineTo(x, y);
-        ctx.closePath();
-        ctx.stroke();
-        //ctx.restore();
+        this._drawLine(ctx, {x: this.endX, y: this.endY}, {x, y});
         this._setEndPoint(x, y);
     }
     restore(ctx) {
         let i = 0;
+        this._setColor(ctx);
         while (i < this.coord.length - 1) {
             const startX = this.coord[i].x;
             const startY = this.coord[i].y;

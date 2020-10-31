@@ -48,7 +48,6 @@ export default {
             if (!(this.isDrawing && this.currentTool)) {
                 return;
             }
-            console.log(offsetX, offsetY);
             this.draw(offsetX, offsetY);
         },
         addToDrawn() {
@@ -67,8 +66,8 @@ export default {
                 this.ctx.strokeStyle = this.color;
                 if (this.toolSelected !== 'Curve') {
                     this.clearAll();
+                    this.rerenderDrawings();
                 }
-                this.rerenderDrawings();
                 this.currentTool.draw(this.ctx, x, y);
             }
         },

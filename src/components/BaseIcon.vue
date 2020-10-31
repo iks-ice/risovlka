@@ -25,6 +25,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 .icon {
+    margin-bottom: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
