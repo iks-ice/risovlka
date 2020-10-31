@@ -2,9 +2,12 @@
    <div class="palette--wrapper" v-show="isOpen">
         <div class="header">
             <input v-model="color"/>
+            <input type="checkbox" v-model="checked" @change="changeColorSys">
+            <span>{{colorSys}}</span>
             <input v-model="alpha" placeholder="'Trancperancy'" type="range" min="0" max="1"
-                step="0.1"
+                step="0.01"
             />
+            <span>{{alpha}}</span>
         </div>
         <div class="main">
             <div ref="paletteWrapper" class="canvas--wrapper">
@@ -26,16 +29,20 @@ export default {
     props:["isOpen"],
     data () {
         return {
-            color: "#3452ae",
+            color: "#000",
             alpha: 1,
             width: 0,
             height: 0,
+            checked: false,
         };
     },
     computed: {
         ctx () {
             return this.$refs.palette.getContext("2d");
         },
+        colorSys() {
+            return this.checked ? "RGB" : "HEX";
+        }
     },
     watch: {
         isOpen(newVal) {
@@ -46,18 +53,18 @@ export default {
         },
         alpha(val) {
             this.ctx.globalAlpha = val;
+            this.setTransparency(val);
             this.drawGradient();
-        }
+        },
+        color (val) {
+            this.setColorDebouced(val);
+        },
     },
     methods: {
-        ...mapMutations(["setColor"]),
-        click({offsetX:x, offsetY:y}) { //{offsetX:startX, offsetY:startY}
-           const color = this.pickColor(x, y);
-           console.log(color);
-           this.setColor(color);
-        },
-        move() { //{offsetX, offsetY}
-
+        ...mapMutations(["setColor", "setTransparency"]),
+        click({offsetX:x, offsetY:y}) { 
+           this.color = this.pickColor(x, y);
+           this.setColor(this.color);
         },
         setCanvasDimensions() {
             this.width = this.$refs.paletteWrapper.offsetWidth;
@@ -71,15 +78,51 @@ export default {
             this.ctx.drawImage(this.$refs.palettePic, 0, 0, this.width, this.height);
             
         },
+        rgbToHex(color) {
+            const toHex = (n) => {
+                const hex = Number(n).toString(16);
+                return hex.length === 1 ? `0${hex}` : hex;
+            };
+            const hex = color.slice(4).slice(0, -1).split(",").map(toHex);
+            const [rHex, gHex, bHex] = hex;
+            return `#${rHex}${gHex}${bHex}`;
+        },
+        hexToRgb(color) {
+            const digits = color.slice(1);
+            let rgb;
+            if (digits.length === 3) {
+                rgb = digits.split("").map(d => parseInt(`0x${d}`, 16));
+            }
+            else if (digits.length === 6) {
+                rgb = digits.replace(/../g, '$&,').split(",")
+                .slice(0, 3)
+                .map(d => parseInt(`0x${d}`, 16));
+            }
+            const [r, g, b] = rgb;
+            return `rgb(${r},${g},${b})`;
+        },
         pickColor(x, y) {
             const imgData = this.ctx.getImageData(0, 0, this.width, this.height);
             const getPixelColor = (indexColor) => () => imgData.data[4 * (x + this.width * y) + indexColor];
             const r = getPixelColor(0);
             const g = getPixelColor(1);
             const b = getPixelColor(2);
-            const a = getPixelColor(3);
-            return `rgba(${r()}, ${g()}, ${b()}, ${(a()/255).toFixed(1)})`;
+            const color = `rgb(${r()},${g()},${b()})`;
+            return  this.colorSys === "RGB" ? color : this.rgbToHex(color);
+        },
+        changeColorSys(e) {
+            this.color = e.target.checked ? 
+                this.hexToRgb(this.color) :
+                this.rgbToHex(this.color);
+        },
+        debounce(fn, delay) {
+            return (...args) => {
+                setTimeout(() => fn.apply(this, args), delay);
+            }
         }
+    },
+    mounted() {
+        this.setColorDebouced = this.debounce(this.setColor, 100);
     }
 }
 </script>

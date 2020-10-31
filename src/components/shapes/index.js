@@ -1,8 +1,9 @@
 class Shape {
-    constructor(startX, startY, color) {
+    constructor(startX, startY, color, alpha) {
         this.startX = startX;
         this.startY = startY;
         this.color = color;
+        this.alpha = alpha;
     }
     _setEndPoint(x, y) {
         this.endX = x;
@@ -15,6 +16,9 @@ class Shape {
         ctx.fillStyle = this.color;
         ctx.strokeStyle = this.color;
     }
+    _setAlpha(ctx) {
+        ctx.globalAlpha = this.alpha;
+    }
     _drawLine = (ctx, from, to) => {
         ctx.beginPath();
         ctx.moveTo(from.x, from.y);
@@ -25,11 +29,12 @@ class Shape {
 }
 
 class Line extends Shape{
-    constructor(startX, startY, color) {
-        super(startX, startY, color);
+    constructor(startX, startY, color, alpha) {
+        super(startX, startY, color, alpha);
     }
     draw(ctx, x, y) {
         this._setColor(ctx);
+        this._setAlpha(ctx);
         this._setEndPoint(x, y);
         this._drawLine(ctx, {x: this.startX, y: this.startY}, {x, y});
     }
@@ -39,11 +44,12 @@ class Line extends Shape{
 }
 
 class Rectangle{
-    constructor(startX, startY, color) {
-        this.line = new Line(startX, startY, color);
+    constructor(startX, startY, color, alpha) {
+        this.line = new Line(startX, startY, color, alpha);
     }
     draw(ctx, x, y) {
         this.line._setColor(ctx);
+        this.line._setAlpha(ctx);
         this.line._setEndPoint(x, y);
         this.line._drawLine(ctx, {x: this.line.startX, y: this.line.startY}, {x, y: this.line.startY});
         this.line._drawLine(ctx, {x: this.line.startX, y: this.line.startY}, {x: this.line.startX, y});
@@ -55,13 +61,14 @@ class Rectangle{
     }
 }
 class Curve extends Shape {
-    constructor(startX, startY,color) {
-        super(startX, startY, color);
+    constructor(startX, startY,color, alpha) {
+        super(startX, startY, color, alpha);
         this.coord = [{x: startX, y: startY}];
         this._setEndPoint(startX, startY);
     }
     draw(ctx, x, y) {
         this._setColor(ctx);
+        this._setAlpha(ctx);
         this.coord.push({x, y});
         this._drawLine(ctx, {x: this.endX, y: this.endY}, {x, y});
         this._setEndPoint(x, y);
@@ -69,6 +76,7 @@ class Curve extends Shape {
     restore(ctx) {
         let i = 0;
         this._setColor(ctx);
+        this._setAlpha(ctx);
         while (i < this.coord.length - 1) {
             const startX = this.coord[i].x;
             const startY = this.coord[i].y;
@@ -81,11 +89,12 @@ class Curve extends Shape {
 }
 
 class Circle extends Shape {
-    constructor(startX, startY, color) {
-        super(startX, startY, color);
+    constructor(startX, startY, color, alpha) {
+        super(startX, startY, color, alpha);
     }
     draw(ctx, x, y) {
         this._setColor(ctx);
+        this._setAlpha(ctx);
         ctx.beginPath();
         const xComp = x-this.startX;
         const yComp = y-this.startY;
@@ -95,7 +104,6 @@ class Circle extends Shape {
         ctx.arc(xCenter, yCenter, radius, 0, 2 * Math.PI, false);
         ctx.closePath();
         ctx.stroke();
-
         this._setEndPoint(x, y);
     }
     restore(ctx) {
