@@ -42,7 +42,7 @@ export default {
         },
         startDrawing(startX, startY) {
             const Tool = toolFabric(this.toolSelected);
-            this.currentTool = Tool && new Tool(startX, startY, this.color, this.alpha);
+            this.currentTool = Tool && new Tool({startX, startY, color: this.color, alpha: this.alpha});
         },
         move({offsetX, offsetY}) {
             if (!(this.isDrawing && this.currentTool)) {
@@ -63,7 +63,7 @@ export default {
         },
         draw (x, y) {
             if (this.isDrawing && this.currentTool) {
-                if (this.toolSelected !== 'Curve') {
+                if (this.toolSelected !== 'Curve' && this.toolSelected !== 'Rubber') {
                     this.clearAll();
                     this.rerenderDrawings();
                 }

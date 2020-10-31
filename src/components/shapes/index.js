@@ -1,16 +1,14 @@
 class Shape {
-    constructor(startX, startY, color, alpha) {
+    constructor({startX, startY, color, alpha, lineWidth}) {
         this.startX = startX;
         this.startY = startY;
         this.color = color;
         this.alpha = alpha;
+        this.lineWidth = lineWidth;
     }
     _setEndPoint(x, y) {
         this.endX = x;
         this.endY = y;
-    }
-    setColor(color) {
-        this.color = color;
     }
     _setColor(ctx) {
         ctx.fillStyle = this.color;
@@ -26,11 +24,17 @@ class Shape {
         ctx.closePath();
         ctx.stroke();
     }
+    setColor(color) {
+        this.color = color;
+    }
+    _setLineWidth(ctx) {
+        ctx.lineWidth = this.lineWidth;
+    }
 }
 
 class Line extends Shape{
-    constructor(startX, startY, color, alpha) {
-        super(startX, startY, color, alpha);
+    constructor({startX, startY, color, alpha, lineWidth}) {
+        super({startX, startY, color, alpha, lineWidth});
     }
     draw(ctx, x, y) {
         this._setColor(ctx);
@@ -43,9 +47,9 @@ class Line extends Shape{
     }
 }
 
-class Rectangle{
-    constructor(startX, startY, color, alpha) {
-        this.line = new Line(startX, startY, color, alpha);
+class Rectangle {
+    constructor({startX, startY, color, alpha, lineWidth}) {
+        this.line = new Line({startX, startY, color, alpha, lineWidth});
     }
     draw(ctx, x, y) {
         this.line._setColor(ctx);
@@ -61,8 +65,8 @@ class Rectangle{
     }
 }
 class Curve extends Shape {
-    constructor(startX, startY,color, alpha) {
-        super(startX, startY, color, alpha);
+    constructor({startX, startY,color, alpha, lineWidth}) {
+        super({startX, startY, color, alpha, lineWidth});
         this.coord = [{x: startX, y: startY}];
         this._setEndPoint(startX, startY);
     }
@@ -88,9 +92,38 @@ class Curve extends Shape {
     }
 }
 
+class Rubber {
+    constructor({startX, startY}) {
+        this.color = "#fff";
+        this.alpha = 1;
+        this.lineWidth = 10;
+        this.curve = new Curve({
+            startX, startY, color: this.color, alpha: this.alpha, lineWidth: this.lineWidth
+        });
+        console.log(this.curve);
+    }
+    draw(ctx, x, y) {
+        ctx.save();
+        this.curve._setLineWidth(ctx);
+        this.curve.draw(ctx, x, y);
+        ctx.restore();
+        // this._setColor(ctx);
+        // this._setAlpha(ctx);
+        // this.coord.push({x, y});
+        // this._drawLine(ctx, {x: this.endX, y: this.endY}, {x, y});
+        // this._setEndPoint(x, y);
+    }
+    restore(ctx) {
+        ctx.save();
+        this.curve._setLineWidth(ctx);
+        this.curve.restore(ctx);
+        ctx.restore();
+    }
+}
+
 class Circle extends Shape {
-    constructor(startX, startY, color, alpha) {
-        super(startX, startY, color, alpha);
+    constructor({startX, startY, color, alpha}) {
+        super({startX, startY, color, alpha});
     }
     draw(ctx, x, y) {
         this._setColor(ctx);
@@ -117,6 +150,7 @@ const shapes = {
     "Curve": Curve,
     "Rectangle": Rectangle,
     "Circle": Circle,
+    "Rubber": Rubber,
 };
 
 const toolFabric = (type) => {
