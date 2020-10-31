@@ -100,18 +100,12 @@ class Rubber {
         this.curve = new Curve({
             startX, startY, color: this.color, alpha: this.alpha, lineWidth: this.lineWidth
         });
-        console.log(this.curve);
     }
     draw(ctx, x, y) {
         ctx.save();
         this.curve._setLineWidth(ctx);
         this.curve.draw(ctx, x, y);
         ctx.restore();
-        // this._setColor(ctx);
-        // this._setAlpha(ctx);
-        // this.coord.push({x, y});
-        // this._drawLine(ctx, {x: this.endX, y: this.endY}, {x, y});
-        // this._setEndPoint(x, y);
     }
     restore(ctx) {
         ctx.save();
