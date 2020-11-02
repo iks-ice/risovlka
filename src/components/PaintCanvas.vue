@@ -1,9 +1,9 @@
 <template>
     <div ref="canvasWrapper" class="canvas-wrapper">
         <canvas ref="canvas" id="canvas"
-            @mousedown="click"
+            @mousedown="clickDown"
             @mousemove="move"
-            @mouseup="click"
+            @mouseup="clickUp"
         >Your browser doesnt support this feature</canvas>
     </div>
 </template>
@@ -29,13 +29,19 @@ export default {
     watch: {
     },
     methods: {
-        click({offsetX:startX, offsetY:startY}) {
+        clickUp({offsetX: x, offsetY:y}) {
+            this.selectShape(this.ctx, x, y);
+            this.toggleDrawing();
+            this.addToDrawn();
+        },
+        clickDown({offsetX: x, offsetY:y}) {
             this.toggleDrawing();
             if (this.isDrawing && this.toolSelected) {
-                this.startDrawing(startX, startY);
-            } else {
-                this.addToDrawn();
+                this.startDrawing(x, y);
             }
+        },
+        selectShape(ctx, x, y) {
+            this.shapes.forEach(s => s.isDrawn && s.select(ctx, x, y));
         },
         toggleDrawing() {
             this.isDrawing = !this.isDrawing;

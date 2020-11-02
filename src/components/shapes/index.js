@@ -1,21 +1,27 @@
+let id = 0;
 class Shape {
     constructor({startX, startY, color, alpha, lineWidth}) {
+        this.id = id++;
         this.startX = startX;
         this.startY = startY;
         this.color = color;
         this.alpha = alpha;
         this.lineWidth = lineWidth;
+        this.isDrawn = false;
+    }
+    _setDrawn() {
+        setTimeout(() => this.isDrawn = true, 500);
     }
     _setEndPoint(x, y) {
         this.endX = x;
         this.endY = y;
     }
-    _setColor(ctx) {
-        ctx.fillStyle = this.color;
-        ctx.strokeStyle = this.color;
+    _setColor(ctx, color = this.color) {
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
     }
-    _setAlpha(ctx) {
-        ctx.globalAlpha = this.alpha;
+    _setAlpha(ctx, alpha = this.alpha) {
+        ctx.globalAlpha = alpha;
     }
     _drawLine = (ctx, from, to) => {
         ctx.beginPath();
@@ -41,9 +47,49 @@ class Line extends Shape{
         this._setAlpha(ctx);
         this._setEndPoint(x, y);
         this._drawLine(ctx, {x: this.startX, y: this.startY}, {x, y});
+        this._setDrawn();
+        this.selectedColor = "lightblue";
+        this.selectedAlpha = 0.5;
     }
     restore(ctx) {
         this.draw(ctx, this.endX, this.endY );
+    }
+    isSelected(x, y) {
+        const quotientX = parseFloat(((x - this.endX) / (this.endX - this.startX)).toFixed(1));
+        const quotientY = parseFloat(((y - this.endY) / (this.endY - this.startY)).toFixed(1));
+        return quotientX === quotientY;
+    }
+    select(ctx, x, y) {
+        if(this.isSelected(x, y)) {
+            console.log(`=== Shape id: ${this.id} isSelected`);
+            let x0, y0, x1, y1, x2, y2, x3, y3;
+            // if(
+            //     ((this.startX < this.endX) && (this.startY > this.endY)) || 
+            //     ((this.startX > this.endX) && (this.startY < this.endY))
+            // ) {
+                x0 = this.startX - 15;
+                y0 = this.startY - 15;
+
+                x1 = this.endX - 15;
+                y1 = this.endY - 15;
+
+                x2 = this.endX + 15;
+                y2 = this.endY + 15;
+
+                x3 = this.startX + 15;
+                y3 = this.startY + 15; 
+
+            // }
+            ctx.save();
+            console.log('draw selected rect');
+            this._setColor(ctx, this.selectedColor);
+            this._setAlpha(ctx, this.selectedAlpha);
+            this._drawLine(ctx, {x: x0, y: y0}, {x: x1, y: y1});
+            this._drawLine(ctx, {x: x1, y: y1}, {x: x2, y: y2});
+            this._drawLine(ctx, {x: x2, y: y2}, {x: x3, y: y3});
+            this._drawLine(ctx, {x: x3, y: y3}, {x: x0, y: y0});
+            ctx.restore();
+        }
     }
 }
 
