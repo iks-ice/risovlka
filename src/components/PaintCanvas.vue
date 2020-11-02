@@ -29,8 +29,7 @@ export default {
     watch: {
     },
     methods: {
-        clickUp({offsetX: x, offsetY:y}) {
-            this.selectShape(this.ctx, x, y);
+        clickUp() {
             this.toggleDrawing();
             this.addToDrawn();
         },
@@ -38,10 +37,13 @@ export default {
             this.toggleDrawing();
             if (this.isDrawing && this.toolSelected) {
                 this.startDrawing(x, y);
+                this.selectShape(this.ctx, x, y);
             }
         },
         selectShape(ctx, x, y) {
-            this.shapes.forEach(s => s.isDrawn && s.select(ctx, x, y));
+            this.clearAll();
+            this.rerenderDrawings();
+            this.shapes.forEach(s => s.select(ctx, x, y));
         },
         toggleDrawing() {
             this.isDrawing = !this.isDrawing;
